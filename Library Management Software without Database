@@ -1,0 +1,182 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+public class LibraryManagementApp {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new LibraryFrame("Library Management App");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.pack();
+            //frame.setSize(1000,800);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Set frame to fullscreen
+            frame.setVisible(true);
+        });
+    }
+}
+
+class LibraryFrame extends JFrame {
+    private JButton addButton;
+    private JButton searchButton;
+    private JButton borrowButton;
+    private JButton returnButton;
+    private JButton viewBooksButton;
+    
+    private List<Book> books = new ArrayList<>();
+    
+    public LibraryFrame(String title) {
+        super(title);
+        // Set background color to light pink
+        getContentPane().setBackground(new Color(255, 182, 193)); // Light pink
+        // Create and initialize components
+        addButton = new JButton("Add Book");
+        searchButton = new JButton("Search Book");
+        borrowButton = new JButton("Borrow Book");
+        returnButton = new JButton("Return Book");
+        viewBooksButton = new JButton("View All Books");
+        // Add action listeners
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addBook();
+            }
+        });
+        
+        searchButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                searchBook();
+            }
+        });
+        
+        borrowButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                borrowBook();
+            }
+        });
+        
+        returnButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                returnBook();
+            }
+        });    
+        viewBooksButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                viewAllBooks(); // Call method to view all books
+            }    
+        });
+        
+        // Create layout and add components
+        setLayout(new FlowLayout());
+        add(addButton);
+        add(searchButton);
+        add(borrowButton);
+        add(returnButton);
+        add(viewBooksButton);
+    }
+    
+    private void addBook() {
+        String title = JOptionPane.showInputDialog(this, "Enter book title:");
+        if (title != null && !title.isEmpty()) {
+            Book book = new Book(title);
+            books.add(book);
+            JOptionPane.showMessageDialog(this, "Book added: " + book.getTitle());
+        }
+    }
+    
+    private void searchBook() {
+        String title = JOptionPane.showInputDialog(this, "Enter book title to search:");
+        if (title != null && !title.isEmpty()) {
+            for (Book book : books) {
+                if (book.getTitle().equalsIgnoreCase(title)) {
+                    JOptionPane.showMessageDialog(this, "Book found: " + book.getTitle());
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Book not found.");
+        }
+    }
+    
+    private void borrowBook() {
+        String title = JOptionPane.showInputDialog(this, "Enter book title to borrow:");
+        if (title != null && !title.isEmpty()) {
+            for (Book book : books) {
+                if (book.getTitle().equalsIgnoreCase(title)) {
+                    if (!book.isBorrowed()) {
+                        book.setBorrowed(true);
+                        JOptionPane.showMessageDialog(this, "Book borrowed: " + book.getTitle());
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Book is already borrowed.");
+                    }
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Book not found.");
+        }
+    }
+    
+    private void returnBook() {
+        String title = JOptionPane.showInputDialog(this, "Enter book title to return:");
+        if (title != null && !title.isEmpty()) {
+            for (Book book : books) {
+                if (book.getTitle().equalsIgnoreCase(title)) {
+                    if (book.isBorrowed()) {
+                        book.setBorrowed(false);
+                        JOptionPane.showMessageDialog(this, "Book returned: " + book.getTitle());
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Book is not borrowed.");
+                    }
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Book not found.");
+        }
+    }
+    private void viewAllBooks() {
+        // Create a string to display all books
+        StringBuilder bookList = new StringBuilder("Books in Stock:\n");
+        
+        if (books.isEmpty()) {
+            bookList.append("No books available.");
+        } else {
+            for (Book book : books) {
+                bookList.append(book.getTitle()).append("\n");
+            }
+        }
+        
+        // Create a JTextArea to display the book list
+        JTextArea textArea = new JTextArea(bookList.toString());
+        textArea.setEditable(false);
+        textArea.setRows(10);
+        textArea.setColumns(30);
+        
+        // Put the JTextArea in a JScrollPane
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        
+        // Show the list of books in a dialog box
+        JOptionPane.showMessageDialog(this, scrollPane, "Books in Stock", JOptionPane.INFORMATION_MESSAGE);
+    }
+}
+
+class Book {
+    private String title;
+    private boolean borrowed;
+    
+    public Book(String title) {
+        this.title = title;
+        this.borrowed = false;
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    public boolean isBorrowed() {
+        return borrowed;
+    }
+    
+    public void setBorrowed(boolean borrowed) {
+        this.borrowed = borrowed;
+    }
+}
